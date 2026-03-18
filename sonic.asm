@@ -3424,7 +3424,7 @@ GM_Special:
 		clearRAM v_objspace
 		clearRAM v_levelvariables
 		clearRAM v_timingvariables
-		clearRAM v_ngfx_buffer
+		clearRAM v_ssbuffer_scroll
 
 		clr.b	(f_wtr_state).w
 		clr.w	(f_restart).w
@@ -3844,7 +3844,7 @@ loc_4C10:
 		neg.w	d0
 		swap	d0
 		lea	(byte_4CCC).l,a1
-		lea	(v_ngfx_buffer).w,a3
+		lea	(v_ssbuffer_bubblescroll).w,a3
 		moveq	#$A-1,d3
 
 loc_4C26:
@@ -3859,7 +3859,7 @@ loc_4C26:
 		ext.w	d2
 		add.w	d2,(a3)+
 		dbf	d3,loc_4C26
-		lea	(v_ngfx_buffer).w,a3
+		lea	(v_ssbuffer_bubblescroll).w,a3
 		lea	(byte_4CB8).l,a2
 		bra.s	loc_4C7E
 ; ===========================================================================
@@ -3868,7 +3868,7 @@ loc_4C4E:
 		cmpi.w	#$C,d0
 		bne.s	loc_4C74
 		subq.w	#1,(v_bg3screenposx).w
-		lea	(v_ssscroll_buffer).w,a3
+		lea	(v_ssbuffer_cloudscroll).w,a3
 		move.l	#$18000,d2
 		moveq	#7-1,d1
 
@@ -3880,7 +3880,7 @@ loc_4C64:
 		dbf	d1,loc_4C64
 
 loc_4C74:
-		lea	(v_ssscroll_buffer).w,a3
+		lea	(v_ssbuffer_cloudscroll).w,a3
 		lea	(byte_4CC4).l,a2
 
 loc_4C7E:
@@ -6957,7 +6957,7 @@ SS_ShowLayout:
 		bsr.w	SS_AniWallsRings
 		bsr.w	SS_AniItems
 		move.w	d5,-(sp)
-		lea	(v_ssbuffer3).w,a1
+		lea	(v_ssbuffer_layoutrender).w,a1
 		move.b	(v_ssangle).w,d0
 		andi.b	#$FC,d0
 		jsr	(CalcSine).l
@@ -6992,7 +6992,7 @@ loc_1B19E:
 		muls.w	d3,d1
 		add.l	d0,d1
 		move.l	d6,d2
-		move.w	#$F,d6
+		move.w	#$10-1,d6
 
 loc_1B1C0:
 		move.l	d2,d0
@@ -7020,11 +7020,11 @@ loc_1B1C0:
 		move.w	(v_screenposx).w,d0
 		divu.w	#$18,d0
 		adda.w	d0,a0
-		lea	(v_ssbuffer3).w,a4
+		lea	(v_ssbuffer_layoutrender).w,a4
 		move.w	#$10-1,d7
 
 loc_1B20C:
-		move.w	#$F,d6
+		move.w	#$10-1,d6
 
 loc_1B210:
 		moveq	#0,d0
@@ -7451,22 +7451,22 @@ SS_LoadData:
 
 		; Load layout data
 		movea.l	SS_LayoutIndex(pc,d0.w),a0
-		lea	(v_ssbuffer2).l,a1
+		lea	(v_ssbuffer_layoutdecomp).l,a1
 		move.w	#make_art_tile(ArtTile_SS_Background_Clouds,0,FALSE),d0
 		jsr	(EniDec).l
 
-		; Clear everything from v_ssbuffer1 to v_ssbuffer2
+		; Clear v_ssbuffer1
 		lea	(v_ssbuffer1).l,a1
-		move.w	#(v_ssbuffer2-v_ssbuffer1)/4-1,d0
+		move.w	#(v_ssbuffer1_end-v_ssbuffer1)/4-1,d0
 
 SS_ClrRAM3:
 		clr.l	(a1)+
 		dbf	d0,SS_ClrRAM3
 
-		; Copy $1000 of data from v_ssbuffer2 to v_ssblockbuffer,
+		; Copy $1000 of data from v_ssbuffer_layoutdecomp to v_ssblockbuffer,
 		; inserting $40 bytes of padding for every $40 bytes copied.
 		lea	(v_ssblockbuffer).l,a1
-		lea	(v_ssbuffer2).l,a0
+		lea	(v_ssbuffer_layoutdecomp).l,a0
 		moveq	#(v_ssblockbuffer_end-v_ssblockbuffer)/$80-1,d1
 
 loc_1B6F6:

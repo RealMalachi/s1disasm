@@ -461,15 +461,33 @@ v_ram_end:
 	dephase
 
 ; Special stage
-v_ssbuffer1		= v_ram_start
-v_ssblockbuffer		= v_ssbuffer1+$1020 ; ($2000 bytes)
-v_ssblockbuffer_end	= v_ssblockbuffer+$80*$40
-v_ssbuffer2		= v_ram_start+$4000
-v_ssblocktypes		= v_ssbuffer2
-v_ssitembuffer		= v_ssbuffer2+$400 ; ($100 bytes)
-v_ssitembuffer_end	= v_ssitembuffer+$100
-v_ssbuffer3		= v_ram_start_def+$8000
-v_ssscroll_buffer	= v_ngfx_buffer+$100
+	phase v_ram_start
+v_ssbuffer1					; layout?
+			ds.b $1020		; layout displacement?
+v_ssblockbuffer		ds.b $80*$40
+v_ssblockbuffer_end
+			ds.b $4000-((*)-v_ssbuffer1)
+v_ssbuffer1_end
+
+v_ssbuffer_layoutdecomp				; v_ssbuffer2
+v_ssblocktypes		ds.b $400
+v_ssitembuffer		ds.b $100
+v_ssitembuffer_end
+			ds.b $1000-((*)-v_ssbuffer_layoutdecomp)
+v_ssbuffer_layoutdecomp_end
+	dephase
+
+	phase ramaddr ( v_ram_start_def+$8000 )
+v_ssbuffer_layoutrender	ds.w (16*16)*2		; v_ssbuffer3
+
+		ds.b v_ngfx_buffer-(*)
+v_ssbuffer_scroll
+v_ssbuffer_bubblescroll	ds.w 10*2
+		ds.b v_ngfx_buffer+$100-(*)
+v_ssbuffer_cloudscroll	ds.l 7			; v_ssscroll_buffer
+		ds.b v_ngfx_buffer+$200-(*)
+v_ssbuffer_scroll_end
+	dephase
 
 ; Error handler
 	phase v_objstate
